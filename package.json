@@ -1,0 +1,10 @@
+{
+  "name": "stellar-lens",
+  "version": "0.1.0",
+  "private": false,
+  "description": "A read-only browser inspector for public Stellar accounts and transactions.",
+  "type": "module",
+  "scripts": {"dev":"vite --host 0.0.0.0", "build":"tsc -b && vite build", "test":"vitest run", "test:watch":"vitest", "typecheck":"tsc --noEmit"},
+  "dependencies": {"@stellar/stellar-sdk":"^13.3.0"},
+  "devDependencies": {"typescript":"^5.7.3", "vite":"^6.1.0", "vitest":"^3.0.5"}
+}
