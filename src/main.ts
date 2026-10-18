@@ -127,6 +127,77 @@ function renderAccount(data: JsonObject, network: Network): void {
     resultBox.append(list);
   }
   resultBox.hidden = false;
+  if (accountId) void loadRecentTransactions(accountId, network);
+}
+
+async function loadRecentTransactions(accountId: string, network: Network): Promise<void> {
+  const section = document.createElement("section");
+  section.className = "operations-section";
+  const heading = document.createElement("h3");
+  heading.className = "subheading";
+  heading.textContent = "Recent transactions";
+  const body = document.createElement("div");
+  body.className = "operations-list";
+  const loading = document.createElement("p");
+  loading.className = "empty-note";
+  loading.textContent = "Loading recent transactions…";
+  body.append(loading);
+  section.append(heading, body);
+  resultBox.append(section);
+
+  try {
+    const response = await fetch(
+      `${HORIZON[network]}/accounts/${encodeURIComponent(accountId)}/transactions?limit=5&order=desc`,
+      { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(12000) },
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const page = await response.json() as HorizonPage;
+    const records = page._embedded?.records ?? [];
+    body.replaceChildren();
+    if (!records.length) {
+      const empty = document.createElement("p");
+      empty.className = "empty-note";
+      empty.textContent = "No recent transactions were returned for this account.";
+      body.append(empty);
+      return;
+    }
+    for (const record of records) {
+      const card = document.createElement("article");
+      card.className = "operation-card";
+      const top = document.createElement("div");
+      top.className = "operation-top";
+      const link = document.createElement("a");
+      link.className = "transaction-hash";
+      const hash = str(record.hash);
+      link.href = explorerUrl(network, "tx", hash);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = hash ? `${hash.slice(0, 12)}…${hash.slice(-8)}` : "Transaction";
+      link.title = hash;
+      const status = document.createElement("span");
+      status.className = record.successful === true ? "transaction-status successful" : "transaction-status";
+      status.textContent = record.successful === true ? "Successful" : record.successful === false ? "Failed" : "Unknown";
+      top.append(link, status);
+      const details = document.createElement("p");
+      details.className = "transaction-meta";
+      const date = formatDate(str(record.created_at));
+      const fee = str(record.fee_charged);
+      const operations = str(record.operation_count);
+      details.textContent = [date, operations ? `${operations} operation(s)` : "", fee ? `${formatXlmFee(fee)} XLM fee` : ""].filter(Boolean).join(" · ");
+      card.append(top, details);
+      if (hash) {
+        const copy = makeCopyButton("Copy transaction hash", hash);
+        card.append(copy);
+      }
+      body.append(card);
+    }
+  } catch {
+    body.replaceChildren();
+    const note = document.createElement("p");
+    note.className = "empty-note";
+    note.textContent = "Recent transactions are temporarily unavailable. The account balances above are still available.";
+    body.append(note);
+  }
 }
 
 function renderTransaction(data: JsonObject, network: Network): void {
