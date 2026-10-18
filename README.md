@@ -6,7 +6,7 @@ A read-only, browser-based developer utility for inspecting public Stellar accou
 
 ## Features
 - Inspect account public keys on Stellar Public or Testnet.
-- View sequence number, ledger metadata, home domain, and balances.
+- View sequence number, ledger metadata, home domain, balances, and the five most recent transactions.
 - Inspect transaction hash, success status, source account, ledger, timestamp, fee, operation count, memo, and envelope XDR.
 - View a human-readable breakdown of transaction operations.
 - View transaction fees in stroops and XLM.
