@@ -33,9 +33,6 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Add market dashboard to website
-        run: cp -R market-dashboard ./dist/market-dashboard
-
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
